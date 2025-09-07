@@ -25,4 +25,6 @@ export interface IPhysics {
   start(): void;
 
   step(deltaSeconds: number): void;
+
+  getMarble(id: number): Box2D.b2Body;
 }

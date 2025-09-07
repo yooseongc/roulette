@@ -141,6 +141,10 @@ export class Box2dPhysics implements IPhysics {
     }
   }
 
+  getMarble(id: number) {
+    return this.marbleMap[id];
+  }
+
   getMarblePosition(id: number): { x: number; y: number; angle: number } {
     const marble = this.marbleMap[id];
     if (marble) {

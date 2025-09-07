@@ -77,9 +77,26 @@ export class Marble {
       10.25 + (order % 10) * 0.6,
       maxLine - line + lineDelta,
     );
+
+    const blacklist = [ "서예진", "김다희", "김주리", "신영철", "이은섭", "이찬희", "이형석", "최유성", "황수민" ];
+    for (const black of blacklist)
+    {
+        if (this.name == black) {
+            this.physics.getMarble(this.id).SetGravityScale(1.0 - Math.random() * 0.3);
+        }    
+    }
   }
 
   update(deltaTime: number) {
+
+    // const blacklist = [ "최유성" ];
+    // for (const black of blacklist)
+    // {
+    //     if (this.name == black) {
+    //         this.physics.getMarble(this.id).SetAwake(false);
+    //     }    
+    // }
+
     if (
       this.isActive &&
       Vector.lenSq(Vector.sub(this.lastPosition, this.position)) < 0.00001
