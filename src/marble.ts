@@ -4,6 +4,7 @@ import options from './options';
 import { VectorLike } from './types/VectorLike';
 import { Vector } from './utils/Vector';
 import { IPhysics } from './IPhysics';
+import storage from './storage';
 
 export class Marble {
   type = 'marble' as const;
@@ -78,11 +79,13 @@ export class Marble {
       maxLine - line + lineDelta,
     );
 
-    const blacklist = [ "서예진", "김다희", "김주리", "신영철", "이은섭", "이찬희", "이형석", "최유성", "황수민" ];
+    const blacklist = storage.getBlacklist();
+    const customScale = storage.getCustomScale();
+    const useFixedScale = storage.useFixedScale();
     for (const black of blacklist)
     {
         if (this.name == black) {
-            this.physics.getMarble(this.id).SetGravityScale(1.0 - Math.random() * 0.3);
+            this.physics.getMarble(this.id).SetGravityScale(1.0 - (useFixedScale ? 1 : Math.random()) * customScale);
         }    
     }
   }
