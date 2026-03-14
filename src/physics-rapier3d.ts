@@ -359,18 +359,23 @@ export class Rapier3dPhysics implements IPhysics {
     for (let i = 0; i < PHYSICS_SUBSTEPS; i++) {
       this.world.step();
     }
-    // Gentle Z-spring to keep marbles near z=0 (corridor walls already block escape)
-    // wakeup=true so sleeping marbles respond after being hit
+    // Z-spring + hard clamp to keep marbles inside the corridor
     this.marbleMap.forEach(({ body }) => {
       if (!body.isEnabled()) return;
       const pos = body.translation();
       const vel = body.linvel();
+      // Soft spring pulls marble toward z=0
       body.applyImpulse({ x: 0, y: 0, z: -pos.z * 0.4 - vel.z * 0.08 }, true);
-      // Cap speed to prevent escape; setLinvel is safe here (called between frames)
-      const speedSq = vel.x * vel.x + vel.y * vel.y + vel.z * vel.z;
+      // Hard clamp: fast kinematic arms can overcome the spring; teleport back if escaped
+      if (Math.abs(pos.z) > CORRIDOR_HALF_DEPTH * 0.85) {
+        body.setTranslation({ x: pos.x, y: pos.y, z: 0 }, true);
+        body.setLinvel({ x: vel.x, y: vel.y, z: 0 }, true);
+      }
+      // Cap XY speed to prevent escape; setLinvel is safe here (called between frames)
+      const speedSq = vel.x * vel.x + vel.y * vel.y;
       if (speedSq > MAX_MARBLE_SPEED * MAX_MARBLE_SPEED) {
         const scale = MAX_MARBLE_SPEED / Math.sqrt(speedSq);
-        body.setLinvel({ x: vel.x * scale, y: vel.y * scale, z: vel.z * scale }, true);
+        body.setLinvel({ x: vel.x * scale, y: vel.y * scale, z: vel.z }, true);
       }
     });
 
