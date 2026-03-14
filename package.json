@@ -5,6 +5,7 @@
   "devDependencies": {
     "@parcel/packager-raw-url": "2.15.4",
     "@parcel/transformer-webmanifest": "2.15.4",
+    "@types/three": "^0.183.1",
     "eslint": "^9.15.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
@@ -23,6 +24,8 @@
     "build": "parcel build index.html --public-url /roulette/"
   },
   "dependencies": {
-    "box2d-wasm": "^7.0.0"
+    "@dimforge/rapier3d-compat": "^0.19.3",
+    "box2d-wasm": "^7.0.0",
+    "three": "^0.183.2"
   }
 }

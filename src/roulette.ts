@@ -4,7 +4,7 @@ import { ParticleManager } from './particleManager';
 import { StageDef, stages } from './data/maps';
 import { parseName } from './utils/utils';
 import { Camera } from './camera';
-import { RouletteRenderer } from './rouletteRenderer';
+import { ThreeRenderer } from './threeRenderer';
 import { SkillEffect } from './skillEffect';
 import { GameObject } from './gameObject';
 import options from './options';
@@ -14,7 +14,7 @@ import { RankRenderer } from './rankRenderer';
 import { Minimap } from './minimap';
 import { VideoRecorder } from './utils/videoRecorder';
 import { IPhysics } from './IPhysics';
-import { Box2dPhysics } from './physics-box2d';
+import { Rapier3dPhysics } from './physics-rapier3d';
 import { MouseEventHandlerName, MouseEventName } from './types/mouseEvents.type';
 
 export class Roulette extends EventTarget {
@@ -34,7 +34,7 @@ export class Roulette extends EventTarget {
   private _stage: StageDef | null = null;
 
   private _camera: Camera = new Camera();
-  private _renderer: RouletteRenderer = new RouletteRenderer();
+  private _renderer: ThreeRenderer = new ThreeRenderer();
 
   private _effects: GameObject[] = [];
 
@@ -237,10 +237,11 @@ export class Roulette extends EventTarget {
   }
 
   private async _init() {
-    this._recorder = new VideoRecorder(this._renderer.canvas);
+    this._recorder = new VideoRecorder(this._renderer.glCanvas);
 
-    this.physics = new Box2dPhysics();
+    this.physics = new Rapier3dPhysics();
     await this.physics.init();
+    this._renderer.setPhysics(this.physics);
 
     this.addUiObject(new RankRenderer());
     this.attachEvent();
@@ -290,6 +291,12 @@ export class Roulette extends EventTarget {
         this._renderer.canvas.addEventListener(ev.toLowerCase(), this.mouseHandler.bind(this, ev));
       },
     );
+    // Mouse-wheel zoom: scroll up = zoom in, scroll down = zoom out
+    this._renderer.canvas.addEventListener('wheel', (e: WheelEvent) => {
+      e.preventDefault();
+      const factor = e.deltaY > 0 ? 0.9 : 1.1;
+      this._camera.addScrollZoom(factor);
+    }, { passive: false });
   }
 
   private _loadMap() {
@@ -298,6 +305,7 @@ export class Roulette extends EventTarget {
     }
 
     this.physics.createStage(this._stage);
+    this._renderer.loadStage(this._stage);
   }
 
   public clearMarbles() {
@@ -421,6 +429,9 @@ export class Roulette extends EventTarget {
 
   public shake() {
     if (!this._shakeAvailable) return;
+    this._marbles.forEach((marble) => this.physics.shakeMarble(marble.id));
+    this._noMoveDuration = 0;
+    this._changeShakeAvailable(false);
   }
 
   public getMaps() {

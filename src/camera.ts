@@ -9,12 +9,18 @@ export class Camera {
   private _zoom: number = 1;
   private _targetZoom: number = 1;
   private _locked = false;
+  private _userZoomFactor: number = 1.0;
 
   get zoom() {
-    return this._zoom;
+    return this._zoom * this._userZoomFactor;
   }
   set zoom(v: number) {
     this._targetZoom = v;
+  }
+
+  /** Called on mouse wheel — factor > 1 zooms in, < 1 zooms out. */
+  addScrollZoom(factor: number) {
+    this._userZoomFactor = Math.max(0.25, Math.min(4.0, this._userZoomFactor * factor));
   }
 
   get x() {
@@ -87,7 +93,7 @@ export class Camera {
         this.zoom = 1;
       }
     } else {
-      this.setPosition({ x: 0, y: 0 });
+      // Keep last position so camera stays at the goal after all marbles finish
       this.zoom = 1;
     }
   }

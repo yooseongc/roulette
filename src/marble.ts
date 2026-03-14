@@ -4,7 +4,6 @@ import options from './options';
 import { VectorLike } from './types/VectorLike';
 import { Vector } from './utils/Vector';
 import { IPhysics } from './IPhysics';
-import storage from './storage';
 
 export class Marble {
   type = 'marble' as const;
@@ -79,15 +78,6 @@ export class Marble {
       maxLine - line + lineDelta,
     );
 
-    const blacklist = storage.getBlacklist();
-    const customScale = storage.getCustomScale();
-    const useFixedScale = storage.useFixedScale();
-    for (const black of blacklist)
-    {
-        if (this.name == black) {
-            this.physics.getMarble(this.id).SetGravityScale(1.0 - (useFixedScale ? 1 : Math.random()) * customScale);
-        }    
-    }
   }
 
   update(deltaTime: number) {

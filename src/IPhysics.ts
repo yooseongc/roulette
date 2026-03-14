@@ -1,6 +1,16 @@
 import type { StageDef } from './data/maps';
 import { MapEntityState } from './types/MapEntity.type';
 
+export interface MarbleTransform3D {
+  x: number;
+  y: number;
+  z: number;
+  qx: number;
+  qy: number;
+  qz: number;
+  qw: number;
+}
+
 export interface IPhysics {
   init(): Promise<void>;
 
@@ -16,7 +26,9 @@ export interface IPhysics {
 
   removeMarble(id: number): void;
 
-  getMarblePosition(id: number): { x: number; y: number; angle: number; };
+  getMarblePosition(id: number): { x: number; y: number; angle: number } | null;
+
+  getMarble3DTransform(id: number): MarbleTransform3D | null;
 
   getEntities(): MapEntityState[];
 
@@ -25,6 +37,4 @@ export interface IPhysics {
   start(): void;
 
   step(deltaSeconds: number): void;
-
-  getMarble(id: number): Box2D.b2Body;
 }

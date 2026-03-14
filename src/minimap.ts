@@ -13,6 +13,7 @@ export class Minimap implements UIObject {
   private _onViewportChangeHandler: ((pos?: VectorLike) => void) | null = null;
   private boundingBox: Rect;
   private mousePosition: { x: number; y: number } | null = null;
+  private _scale: number = 4;
 
   constructor() {
     this.boundingBox = {
@@ -45,32 +46,36 @@ export class Minimap implements UIObject {
       return;
     }
     if (!this.lastParams) return;
-    this.mousePosition = {
-      x: e.x,
-      y: e.y,
-    };
+    this.mousePosition = { x: e.x, y: e.y };
     if (this._onViewportChangeHandler) {
       this._onViewportChangeHandler({
-        x: this.mousePosition.x / 4,
-        y: this.mousePosition.y / 4,
+        x: (this.mousePosition.x - this.boundingBox.x) / this._scale,
+        y: (this.mousePosition.y - this.boundingBox.y) / this._scale,
       });
     }
   }
 
-  render(ctx: CanvasRenderingContext2D, params: RenderParameters) {
+  render(ctx: CanvasRenderingContext2D, params: RenderParameters, _width: number, height: number) {
     if (!ctx) return;
     const { stage } = params;
     if (!stage) return;
-    this.boundingBox.h = stage.goalY * 4;
+
+    // Scale minimap to fit within the canvas height (max 4px per game unit)
+    const MAX_SCALE = 4;
+    const availableH = height - 20; // 10px margin top + bottom
+    this._scale = Math.min(MAX_SCALE, availableH / stage.goalY);
+    const mapW = 26;
+    this.boundingBox.w = mapW * this._scale;
+    this.boundingBox.h = stage.goalY * this._scale;
 
     this.lastParams = params;
 
     this.ctx = ctx;
     ctx.save();
     ctx.fillStyle = '#333';
-    ctx.translate(10, 10);
-    ctx.scale(4, 4);
-    ctx.fillRect(0, 0, 26, stage.goalY);
+    ctx.translate(this.boundingBox.x, this.boundingBox.y);
+    ctx.scale(this._scale, this._scale);
+    ctx.fillRect(0, 0, mapW, stage.goalY);
 
     this.ctx.lineWidth = 3 / (params.camera.zoom + initialZoom);
     this.drawEntities(params.entities);
@@ -109,7 +114,8 @@ export class Minimap implements UIObject {
       this.ctx.fillStyle = entity.shape.color ?? DefaultEntityColor[entity.shape.type];
       this.ctx.strokeStyle = entity.shape.color ?? DefaultEntityColor[entity.shape.type];
       this.ctx.translate(entity.x, entity.y);
-      this.ctx.rotate(entity.angle);
+      // entity.angle is in Rapier convention (negated vs Box2D Y-down); un-negate for canvas
+      this.ctx.rotate(-entity.angle);
 
       this.ctx.save();
       const shape = entity.shape;

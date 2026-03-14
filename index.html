@@ -349,14 +349,11 @@
       }
     }
 
-    #donate {
+    #inGame {
       position: fixed;
-      bottom: calc(160px + 1.5rem);
+      bottom: 1rem;
       left: 1rem;
       z-index: 999;
-      visibility: visible;
-      opacity: 1;
-      transition: visibility 0s, opacity 1s linear;
 
       &.hide {
         opacity: 0;
@@ -365,10 +362,6 @@
     }
 
     @media screen and (max-width: 750px) {
-      #donate {
-        bottom: 2rem;
-      }
-
       #settings {
         bottom: calc(2.5rem + 60px);
         display: block;
@@ -593,7 +586,6 @@
       });
       window.roullete.start();
       document.querySelector('#settings').classList.add('hide');
-      document.querySelector('#donate').classList.add('hide');
     });
 
     document.querySelector('#chkAutoRecording').addEventListener('change', (e) => {
@@ -635,7 +627,7 @@
       ready = false;
       setTimeout(() => {
         document.querySelector('#settings').classList.remove('hide');
-        document.querySelector('#donate').classList.remove('hide');
+        getReady(); // re-enable start button automatically
       }, 3000);
     });
     window.roullete.addEventListener('shakeAvailableChanged', (e) => {
@@ -659,7 +651,7 @@
     });
     mapSelector.addEventListener('change', (e) => {
       const index = e.target.value;
-      window.roullete.setMap(index);
+      window.roullete.setMap(parseInt(index, 10));
     });
 
     const checkDonateButtonLoaded = () => {
@@ -719,7 +711,7 @@
       }
     };
 
-    checkNotice();
+    // checkNotice(); // disabled: startup notice removed
 
 
   }
@@ -778,12 +770,6 @@
     </div>
   </div>
 </div>
-<div id="donate">
-  <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js"
-          data-name="bmc-button" data-slug="lazygyu" data-color="#FFDD00" data-emoji=""
-          data-font="Comic" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000"
-          data-coffee-color="#ffffff"></script>
-</div>
 <div id="inGame" class="settings hide">
   <button id="btnShake" data-trans>Shake!</button>
 </div>
@@ -799,7 +785,7 @@
     <button id="closeNotice" data-trans>Close</button>
   </div>
 </div>
-<div class="copyright">&copy; 2025.<a href="https://lazygyu.net" target="_blank">lazygyu</a> <span data-trans>This program is freeware and may be used freely anywhere, including in broadcasts and videos.</span>
+<div class="copyright">&copy; 2026.<a href="https://lazygyu.net" target="_blank">lazygyu</a> <span data-trans>This program is freeware and may be used freely anywhere, including in broadcasts and videos.</span>
 </div>
 </body>
 </html>
